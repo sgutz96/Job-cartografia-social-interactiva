@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartografía Social Interactiva</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            overflow: hidden;
+            background-color: #E8D5B7;
+        }
+
+        #container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #canvas-container {
+            flex: 1;
+        }
+
+        #side-panel {
+
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background-color: #F5E6D3;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      
+
+            width: 384px;
+            background-color: #F5E6D3;
+            padding: 24px;
+            overflow-y: auto;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.2);
+            display: none;
+            position: absolute;
+            z-index: 10;
+            
+        }
+
+        #side-panel.active {
+            display: block;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #333;
+            background: none;
+            border: none;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #dc2626;
+        }
+
+        .panel-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+
+        .call-to-action {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 24px;
+        }
+
+        .panel-text {
+            color: #374151;
+            line-height: 1.75;
+            margin-bottom: 24px;
+        }
+
+        .tags-section h3 {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6B7280;
+            margin-bottom: 8px;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .tag {
+            padding: 4px 12px;
+            background-color: #8B4513;
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .gallery-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .gallery-btn:hover {
+            opacity: 0.9;
+        }
+
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #F5E6D3;
+            border-radius: 8px;
+            padding: 32px;
+            max-width: 672px;
+            width: 90%;
+            margin: 0 16px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1F2937;
+        }
+
+        .carousel-container {
+            position: relative;
+        }
+
+        .carousel-slide {
+            height: 256px;
+            background-color: #D2B48C;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .carousel-slide p {
+            font-size: 24px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background-color: #8B4513;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .carousel-btn:hover {
+            opacity: 0.75;
+        }
+
+        .carousel-btn.prev {
+            left: 8px;
+        }
+
+        .carousel-btn.next {
+            right: 8px;
+        }
+
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #D2B48C;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .indicator.active {
+            background-color: #8B4513;
+        }
+
+        #instructions {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background-color: #F5E6D3;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        #instructions.hidden {
+            display: none;
+        }
+
+        #instructions h3 {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #1F2937;
+        }
+
+        #instructions p {
+            font-size: 14px;
+            color: #374151;
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            color: #8B4513;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">Cargando escena 3D...</div>
+    
+    <div id="container">
+        <div id="canvas-container"></div>
+        
+        <div id="side-panel">
+            <button class="close-btn" onclick="closePanel()">×</button>
+            <h2 class="panel-title" id="panel-title"></h2>
+            <div class="call-to-action" id="call-to-action"></div>
+            <p class="panel-text" id="panel-text"></p>
+            <div class="tags-section">
+                <h3>Etiquetas:</h3>
+                <div class="tags-container" id="tags-container"></div>
+            </div>
+            <button class="gallery-btn" id="gallery-btn" onclick="openModal()">
+                Ver Galería de Imágenes
+            </button>
+        </div>
+
+        <div id="instructions">
+            <h3>🏘️ Aldea de Conocimiento</h3>
+            <p>Haz clic en las casas para explorar</p>
+        </div>
+    </div>
+
+    <div id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title"></h3>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="carousel-container">
+                <div class="carousel-slide">
+                    <p id="carousel-image"></p>
+                </div>
+                <button class="carousel-btn prev" onclick="prevSlide()">‹</button>
+                <button class="carousel-btn next" onclick="nextSlide()">›</button>
+            </div>
+            <div class="carousel-indicators" id="indicators"></div>
+        </div>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        const topics = [
+            {
+                id: 'presentacion',
+                title: 'Presentación',
+                color: 0xD2691E,
+                position: [-6, 1.5, -2],
+                scale: [2, 3, 2],
+                callToAction: 'Descubre el proyecto',
+                text: 'La cartografía social es una herramienta participativa que permite visualizar y analizar el territorio desde la perspectiva de sus habitantes.',
+                tags: ['Participativo', 'Visual', 'Territorial'],
+                images: ['Imagen 1', 'Imagen 2', 'Imagen 3']
+            },
+            {
+                id: 'contextualizacion',
+                title: 'Contextualización',
+                color: 0xCD853F,
+                position: [-3, 1, 2],
+                scale: [1.8, 2, 1.8],
+                callToAction: 'Conoce el contexto',
+                text: 'Este proyecto se desarrolla en un contexto comunitario donde la representación espacial ayuda a identificar problemáticas y potencialidades del territorio.',
+                tags: ['Comunidad', 'Territorio', 'Análisis'],
+                images: ['Contexto 1', 'Contexto 2', 'Contexto 3']
+            },
+            {
+                id: 'preguntas',
+                title: 'Preguntas',
+                color: 0xB8860B,
+                position: [0, 2, -3],
+                scale: [2.2, 4, 2.2],
+                callToAction: 'Explora las preguntas',
+                text: '¿Cómo percibe la comunidad su territorio? ¿Qué elementos son significativos? ¿Cuáles son los espacios de encuentro y conflicto?',
+                tags: ['Investigación', 'Reflexión', 'Diálogo'],
+                images: ['Pregunta 1', 'Pregunta 2', 'Pregunta 3']
+            },
+            {
+                id: 'objetivos',
+                title: 'Objetivos',
+                color: 0xDEB887,
+                position: [3, 0.8, 1],
+                scale: [1.6, 1.6, 1.6],
+                callToAction: 'Revisa los objetivos',
+                text: 'Facilitar la participación comunitaria, identificar elementos territoriales clave y generar conocimiento colectivo sobre el espacio habitado.',
+                tags: ['Metas', 'Participación', 'Conocimiento'],
+                images: ['Objetivo 1', 'Objetivo 2', 'Objetivo 3']
+            },
+            {
+                id: 'instrumentos',
+                title: 'Instrumentos',
+                color: 0xA0522D,
+                position: [-1, 1.2, 4],
+                scale: [2, 2.4, 2],
+                callToAction: 'Conoce las herramientas',
+                text: 'Mapas base, fichas de observación, fotografías, entrevistas y talleres participativos son algunos de los instrumentos utilizados.',
+                tags: ['Herramientas', 'Metodología', 'Técnicas'],
+                images: ['Instrumento 1', 'Instrumento 2', 'Instrumento 3']
+            },
+            {
+                id: 'marco-teorico',
+                title: 'Marco Teórico',
+                color: 0x8B4513,
+                position: [6, 1.8, -1],
+                scale: [2.5, 3.6, 2.5],
+                callToAction: 'Profundiza en la teoría',
+                text: 'Basado en la geografía crítica, la investigación acción participativa y los estudios territoriales contemporáneos.',
+                tags: ['Teoría', 'Geografía', 'Participación'],
+                images: ['Teoría 1', 'Teoría 2', 'Teoría 3']
+            },
+            {
+                id: 'metodologia',
+                title: 'Metodología',
+                color: 0xD2B48C,
+                position: [4, 1.4, 4],
+                scale: [2, 2.8, 2],
+                callToAction: 'Entiende el proceso',
+                text: 'Proceso mixto que combina técnicas cualitativas y cuantitativas, priorizando el enfoque participativo y la construcción colectiva.',
+                tags: ['Proceso', 'Mixto', 'Colaborativo'],
+                images: ['Método 1', 'Método 2', 'Método 3']
+            },
+            {
+                id: 'estrategia-didactica',
+                title: 'Estrategia Didáctica',
+                color: 0xBC8F8F,
+                position: [-5, 1, -5],
+                scale: [2.2, 2, 2.2],
+                callToAction: 'Descubre la estrategia',
+                text: 'Talleres vivenciales, recorridos territoriales y construcción colectiva de mapas que fomentan el aprendizaje significativo.',
+                tags: ['Educación', 'Talleres', 'Aprendizaje'],
+                images: ['Estrategia 1', 'Estrategia 2', 'Estrategia 3']
+            }
+        ];
+
+        let currentTopic = null;
+        let currentSlide = 0;
+        let scene, camera, renderer, cubes = [];
+
+        function init() {
+            const container = document.getElementById('canvas-container');
+            
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xE8D5B7);
+            scene.fog = new THREE.Fog(0xE8D5B7, 10, 30);
+
+            camera = new THREE.PerspectiveCamera(
+                50,
+                container.clientWidth / container.clientHeight,
+                0.1,
+                1000
+            );
+
+            const distance = 20;
+            const angle = Math.PI / 6;
+            camera.position.set(
+                distance * Math.cos(angle),
+                distance * 0.8,
+                distance * Math.sin(angle)
+            );
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xF4E4C1, 0.7);
+            scene.add(ambientLight);
+
+            const sunLight = new THREE.DirectionalLight(0xFFE4B5, 0.8);
+            sunLight.position.set(10, 15, 5);
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.width = 2048;
+            sunLight.shadow.mapSize.height = 2048;
+            sunLight.shadow.camera.left = -15;
+            sunLight.shadow.camera.right = 15;
+            sunLight.shadow.camera.top = 15;
+            sunLight.shadow.camera.bottom = -15;
+            scene.add(sunLight);
+
+            const fillLight = new THREE.DirectionalLight(0xDEB887, 0.3);
+            fillLight.position.set(-5, 5, -5);
+            scene.add(fillLight);
+
+            const groundGeometry = new THREE.PlaneGeometry(40, 40);
+            const groundMaterial = new THREE.MeshStandardMaterial({
+                color: 0xC2A370,
+                roughness: 0.9,
+                metalness: 0.1
+            });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            topics.forEach((topic) => {
+                const geometry = new THREE.BoxGeometry(...topic.scale);
+                const material = new THREE.MeshStandardMaterial({
+                    color: topic.color,
+                    roughness: 0.7,
+                    metalness: 0.2
+                });
+                const cube = new THREE.Mesh(geometry, material);
+                cube.position.set(topic.position[0], topic.position[1], topic.position[2]);
+                cube.castShadow = true;
+                cube.receiveShadow = true;
+                cube.userData = topic;
+                scene.add(cube);
+                cubes.push(cube);
+
+                const roofGeometry = new THREE.BoxGeometry(
+                    topic.scale[0] + 0.2,
+                    0.3,
+                    topic.scale[2] + 0.2
+                );
+                const roofMaterial = new THREE.MeshStandardMaterial({
+                    color: new THREE.Color(topic.color).multiplyScalar(0.6),
+                    roughness: 0.8
+                });
+                const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+                roof.position.set(
+                    topic.position[0],
+                    topic.position[1] + topic.scale[1] / 2 + 0.15,
+                    topic.position[2]
+                );
+                roof.castShadow = true;
+                scene.add(roof);
+
+                const windowGeometry = new THREE.BoxGeometry(0.4, 0.5, 0.1);
+                const windowMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x4A4A4A,
+                    emissive: 0xFFE4B5,
+                    emissiveIntensity: 0.3
+                });
+
+                for (let i = 0; i < 2; i++) {
+                    const window1 = new THREE.Mesh(windowGeometry, windowMaterial);
+                    window1.position.set(
+                        topic.position[0] + (i - 0.5) * topic.scale[0] * 0.4,
+                        topic.position[1] + topic.scale[1] * 0.2,
+                        topic.position[2] + topic.scale[2] / 2 + 0.05
+                    );
+                    scene.add(window1);
+                }
+            });
+
+            const addTree = (x, z) => {
+                const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.3, 1.5, 8);
+                const trunkMaterial = new THREE.MeshStandardMaterial({ color: 0x654321 });
+                const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+                trunk.position.set(x, 0.75, z);
+                trunk.castShadow = true;
+                scene.add(trunk);
+
+                const leavesGeometry = new THREE.SphereGeometry(0.8, 8, 8);
+                const leavesMaterial = new THREE.MeshStandardMaterial({ color: 0x6B8E23 });
+                const leaves = new THREE.Mesh(leavesGeometry, leavesMaterial);
+                leaves.position.set(x, 2, z);
+                leaves.castShadow = true;
+                scene.add(leaves);
+            };
+
+            addTree(-8, -6);
+            addTree(8, -7);
+            addTree(-9, 6);
+            addTree(7, 7);
+            addTree(2, -7);
+
+            renderer.domElement.addEventListener('click', onMouseClick);
+            window.addEventListener('resize', onWindowResize);
+
+            document.getElementById('loading').style.display = 'none';
+            animate();
+        }
+
+        function onMouseClick(event) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            const mouse = new THREE.Vector2();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(cubes);
+
+            if (intersects.length > 0) {
+                window.showPanel(intersects[0].object.userData);
+            }
+        }
+
+        window.showPanel = function(topic) {
+            currentTopic = topic;
+            currentSlide = 0;
+
+            document.getElementById('panel-title').textContent = topic.title;
+            document.getElementById('panel-title').style.color = '#' + topic.color.toString(16).padStart(6, '0');
+            
+            const cta = document.getElementById('call-to-action');
+            cta.textContent = topic.callToAction;
+            cta.style.backgroundColor = '#' + topic.color.toString(16).padStart(6, '0');
+            
+            document.getElementById('panel-text').textContent = topic.text;
+            
+            const tagsContainer = document.getElementById('tags-container');
+            tagsContainer.innerHTML = '';
+            topic.tags.forEach(tag => {
+                const tagEl = document.createElement('span');
+                tagEl.className = 'tag';
+                tagEl.textContent = tag;
+                tagsContainer.appendChild(tagEl);
+            });
+
+            const galleryBtn = document.getElementById('gallery-btn');
+            galleryBtn.style.backgroundColor = '#' + topic.color.toString(16).padStart(6, '0');
+
+            document.getElementById('side-panel').classList.add('active');
+            document.getElementById('instructions').classList.add('hidden');
+        }
+
+        window.closePanel = function() {
+            document.getElementById('side-panel').classList.remove('active');
+            document.getElementById('instructions').classList.remove('hidden');
+            currentTopic = null;
+        }
+
+        window.openModal = function() {
+            if (!currentTopic) return;
+            
+            document.getElementById('modal-title').textContent = 'Galería - ' + currentTopic.title;
+            document.getElementById('carousel-image').textContent = currentTopic.images[currentSlide];
+            
+            const indicators = document.getElementById('indicators');
+            indicators.innerHTML = '';
+            currentTopic.images.forEach((_, index) => {
+                const indicator = document.createElement('button');
+                indicator.className = 'indicator' + (index === currentSlide ? ' active' : '');
+                indicator.onclick = () => window.goToSlide(index);
+                indicators.appendChild(indicator);
+            });
+
+            document.getElementById('modal').classList.add('active');
+        }
+
+        window.closeModal = function() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        window.nextSlide = function() {
+            if (!currentTopic) return;
+            currentSlide = (currentSlide + 1) % currentTopic.images.length;
+            window.updateCarousel();
+        }
+
+        window.prevSlide = function() {
+            if (!currentTopic) return;
+            currentSlide = currentSlide === 0 ? currentTopic.images.length - 1 : currentSlide - 1;
+            window.updateCarousel();
+        }
+
+        window.goToSlide = function(index) {
+            currentSlide = index;
+            window.updateCarousel();
+        }
+
+        window.updateCarousel = function() {
+            document.getElementById('carousel-image').textContent = currentTopic.images[currentSlide];
+            const indicators = document.querySelectorAll('.indicator');
+            indicators.forEach((ind, index) => {
+                ind.className = 'indicator' + (index === currentSlide ? ' active' : '');
+            });
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('canvas-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        let cameraAngle = Math.PI / 6;
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const distance = 20;
+            cameraAngle += 0.001;
+            camera.position.x = distance * Math.cos(cameraAngle);
+            camera.position.z = distance * Math.sin(cameraAngle);
+            camera.lookAt(0, 0, 0);
+
+            renderer.render(scene, camera);
+        }
+
+        init();
+    </script>
+</body>
+</html>
