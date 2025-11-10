@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,7 +15,7 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             overflow: hidden;
-            background-color: #E8D5B7;
+            background-color: #B7C5E8;
         }
 
         #container {
@@ -37,7 +38,7 @@
             padding: 16px;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      
+
 
             width: 384px;
             background-color: #F5E6D3;
@@ -47,7 +48,7 @@
             display: none;
             position: absolute;
             z-index: 10;
-            
+
         }
 
         #side-panel.active {
@@ -67,11 +68,11 @@
             transition: color 0.3s;
         }
 
-          .modal-header .close-btn {
-           
+        .modal-header .close-btn {
+
             font-size: 64px;
             color: #ffffff;
-      
+
         }
 
         .close-btn:hover {
@@ -280,12 +281,13 @@
         }
     </style>
 </head>
+
 <body>
     <div id="loading">Cargando escena 3D...</div>
-    
+
     <div id="container">
         <div id="canvas-container"></div>
-        
+
         <div id="side-panel">
             <button class="close-btn" onclick="closePanel()">×</button>
             <h2 class="panel-title" id="panel-title"></h2>
@@ -301,7 +303,7 @@
         </div>
 
         <div id="instructions">
-            <h3>🏘️ Aldea de Conocimiento</h3>
+            <h3>🏘 Aldea de Conocimiento</h3>
             <p>Haz clic en las casas para explorar</p>
         </div>
     </div>
@@ -314,7 +316,8 @@
             </div>
             <div class="carousel-container">
                 <div class="carousel-slide">
-                    <p id="carousel-image"></p>
+                    <img id="carousel-image" src="" alt="Imagen del tema"
+                        style="max-height: 256px; max-width: 100%; border-radius: 8px; object-fit: cover;">
                 </div>
                 <button class="carousel-btn prev" onclick="prevSlide()">‹</button>
                 <button class="carousel-btn next" onclick="nextSlide()">›</button>
@@ -336,20 +339,26 @@
 
         const topics = [
             {
-                id: 'presentacion',
-                title: 'Presentación',
-                color: 0xD2691E,
+                id: 'maestrasEnFormacion',
+                title: 'maestras en formación',
+                color: 0xF29B9B,
                 position: [-6, 1.5, -2],
                 scale: [2, 3, 2],
-                callToAction: 'Descubre el proyecto',
-                text: 'La cartografía social es una herramienta participativa que permite visualizar y analizar el territorio desde la perspectiva de sus habitantes.',
-                tags: ['Participativo', 'Visual', 'Territorial'],
-                images: ['Imagen 1', 'Imagen 2', 'Imagen 3']
+                callToAction: 'Las maestras en formación te cuentan',
+                text: 'La forma en que las maestras vivieron su infancia influye directamente en su trabajo en el TPII debido a que estas experiencias previas configuran sus creencias, prácticas y concepciones sobre cuidado y crianza. El proceso reflexivo en el TPII les permite reconocer esas huellas y transformarlas, evitando reproducir prácticas limitantes.  ',
+                tags: ['Crianza', 'Cuidado', 'Reflexión'],
+                images: [
+  './Img/Maestras en formación/MEF_-_1_.jpg',
+  './Img/Maestras en formación/MEF_-_2_.jpg',
+  './Img/Maestras en formación/MEF_-_3_.jpg'
+]
+
+                
             },
-            {
+            /*{
                 id: 'contextualizacion',
                 title: 'Contextualización',
-                color: 0xCD853F,
+                color: 0xF29BC8,
                 position: [-3, 1, 2],
                 scale: [1.8, 2, 1.8],
                 callToAction: 'Conoce el contexto',
@@ -360,7 +369,7 @@
             {
                 id: 'preguntas',
                 title: 'Preguntas',
-                color: 0xB8860B,
+                color: 0xD89BF2,
                 position: [0, 2, -3],
                 scale: [2.2, 4, 2.2],
                 callToAction: 'Explora las preguntas',
@@ -371,7 +380,7 @@
             {
                 id: 'objetivos',
                 title: 'Objetivos',
-                color: 0xDEB887,
+                color: 0x9BA8F2,
                 position: [3, 0.8, 1],
                 scale: [1.6, 1.6, 1.6],
                 callToAction: 'Revisa los objetivos',
@@ -382,7 +391,7 @@
             {
                 id: 'instrumentos',
                 title: 'Instrumentos',
-                color: 0xA0522D,
+                color: 0x72D688,
                 position: [-1, 1.2, 4],
                 scale: [2, 2.4, 2],
                 callToAction: 'Conoce las herramientas',
@@ -393,7 +402,7 @@
             {
                 id: 'marco-teorico',
                 title: 'Marco Teórico',
-                color: 0x8B4513,
+                color: 0xF0DB73,
                 position: [6, 1.8, -1],
                 scale: [2.5, 3.6, 2.5],
                 callToAction: 'Profundiza en la teoría',
@@ -404,7 +413,7 @@
             {
                 id: 'metodologia',
                 title: 'Metodología',
-                color: 0xD2B48C,
+                color: 0xF07373,
                 position: [4, 1.4, 4],
                 scale: [2, 2.8, 2],
                 callToAction: 'Entiende el proceso',
@@ -422,7 +431,7 @@
                 text: 'Talleres vivenciales, recorridos territoriales y construcción colectiva de mapas que fomentan el aprendizaje significativo.',
                 tags: ['Educación', 'Talleres', 'Aprendizaje'],
                 images: ['Estrategia 1', 'Estrategia 2', 'Estrategia 3']
-            }
+            }*/
         ];
 
         let currentTopic = null;
@@ -431,10 +440,10 @@
 
         function init() {
             const container = document.getElementById('canvas-container');
-            
+
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xE8D5B7);
-            scene.fog = new THREE.Fog(0xE8D5B7, 10, 30);
+            scene.background = new THREE.Color(0xB7C5E8);
+            scene.fog = new THREE.Fog(0xB7C5E8, 10, 50);
 
             camera = new THREE.PerspectiveCamera(
                 50,
@@ -476,9 +485,9 @@
             fillLight.position.set(-5, 5, -5);
             scene.add(fillLight);
 
-            const groundGeometry = new THREE.PlaneGeometry(40, 40);
+            const groundGeometry = new THREE.PlaneGeometry(80, 80);
             const groundMaterial = new THREE.MeshStandardMaterial({
-                color: 0xC2A370,
+                color: 0x72F688,
                 roughness: 0.9,
                 metalness: 0.1
             });
@@ -486,6 +495,32 @@
             ground.rotation.x = -Math.PI / 2;
             ground.receiveShadow = true;
             scene.add(ground);
+
+
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // Cargar textura
+            const textureLoader = new THREE.TextureLoader();
+            const texture = textureLoader.load('Textures/TexturePiso_V2.png', () => {
+                renderer.render(scene, camera);
+            });
+
+            // Repetir la textura para cubrir bien el plano
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(1, 1); // Ajusta según necesites
+
+            // Crear plano 20x20
+            const geometryPiso = new THREE.PlaneGeometry(20, 20);
+            const materialPiso = new THREE.MeshStandardMaterial({ map: texture, alphaTest: 0.9 });
+            const Colegio = new THREE.Mesh(geometryPiso, materialPiso);
+            Colegio.rotation.x = -Math.PI / 2;
+            Colegio.position.y = 0.01; // Pequeño offset para evitar z-fighting
+            scene.add(Colegio);
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 
             topics.forEach((topic) => {
                 const geometry = new THREE.BoxGeometry(...topic.scale);
@@ -554,11 +589,13 @@
                 scene.add(leaves);
             };
 
-            addTree(-8, -6);
-            addTree(8, -7);
-            addTree(-9, 6);
-            addTree(7, 7);
-            addTree(2, -7);
+
+
+            for (var i = 0; i < 20; i++) {
+                addTree((Math.random() * 20) - 10, (Math.random() * 20) - 10);
+
+                //addTree(2, -7);
+            }
 
             renderer.domElement.addEventListener('click', onMouseClick);
             window.addEventListener('resize', onWindowResize);
@@ -582,19 +619,19 @@
             }
         }
 
-        window.showPanel = function(topic) {
+        window.showPanel = function (topic) {
             currentTopic = topic;
             currentSlide = 0;
 
             document.getElementById('panel-title').textContent = topic.title;
             document.getElementById('panel-title').style.color = '#' + topic.color.toString(16).padStart(6, '0');
-            
+
             const cta = document.getElementById('call-to-action');
             cta.textContent = topic.callToAction;
             cta.style.backgroundColor = '#' + topic.color.toString(16).padStart(6, '0');
-            
+
             document.getElementById('panel-text').textContent = topic.text;
-            
+
             const tagsContainer = document.getElementById('tags-container');
             tagsContainer.innerHTML = '';
             topic.tags.forEach(tag => {
@@ -611,18 +648,19 @@
             document.getElementById('instructions').classList.add('hidden');
         }
 
-        window.closePanel = function() {
+        window.closePanel = function () {
             document.getElementById('side-panel').classList.remove('active');
             document.getElementById('instructions').classList.remove('hidden');
             currentTopic = null;
         }
 
-        window.openModal = function() {
+        window.openModal = function () {
             if (!currentTopic) return;
-            
+
             document.getElementById('modal-title').textContent = 'Galería - ' + currentTopic.title;
-            document.getElementById('carousel-image').textContent = currentTopic.images[currentSlide];
-            
+            document.getElementById('carousel-image').src = currentTopic.images[currentSlide];
+
+
             const indicators = document.getElementById('indicators');
             indicators.innerHTML = '';
             currentTopic.images.forEach((_, index) => {
@@ -635,29 +673,30 @@
             document.getElementById('modal').classList.add('active');
         }
 
-        window.closeModal = function() {
+        window.closeModal = function () {
             document.getElementById('modal').classList.remove('active');
         }
 
-        window.nextSlide = function() {
+        window.nextSlide = function () {
             if (!currentTopic) return;
             currentSlide = (currentSlide + 1) % currentTopic.images.length;
             window.updateCarousel();
         }
 
-        window.prevSlide = function() {
+        window.prevSlide = function () {
             if (!currentTopic) return;
             currentSlide = currentSlide === 0 ? currentTopic.images.length - 1 : currentSlide - 1;
             window.updateCarousel();
         }
 
-        window.goToSlide = function(index) {
+        window.goToSlide = function (index) {
             currentSlide = index;
             window.updateCarousel();
         }
 
-        window.updateCarousel = function() {
-            document.getElementById('carousel-image').textContent = currentTopic.images[currentSlide];
+        window.updateCarousel = function () {
+            document.getElementById('carousel-image').src = currentTopic.images[currentSlide];
+
             const indicators = document.querySelectorAll('.indicator');
             indicators.forEach((ind, index) => {
                 ind.className = 'indicator' + (index === currentSlide ? ' active' : '');
@@ -674,7 +713,7 @@
         let cameraAngle = Math.PI / 6;
         function animate() {
             requestAnimationFrame(animate);
-            
+
             const distance = 20;
             cameraAngle += 0.001;
             camera.position.x = distance * Math.cos(cameraAngle);
@@ -687,4 +726,5 @@
         init();
     </script>
 </body>
+
 </html>
